@@ -54,13 +54,13 @@ class FeedDatabase():
         
     def activate_feed(self, URL):
         """Activate feeds"""
-        self.__sql_update__ = "UPDATE feeds SET Active = 1 WHERE URL = \"{0}\" AND Active = 0".format(self.feed)
+        self.__sql_update__ = "UPDATE feeds SET Active = 1 WHERE URL = \"{0}\" AND Active = 0".format(URL)
         self.cursor.execute(self.__sql_update__)
         self.db.commit()
             
     def deactivate_feed(self, URL):
         """Deactivate an active feed"""
-        self.__sql_update__ = "UPDATE feeds SET Active = 0 WHERE URL = \"{0}\" AND Active = 1".format(self.feed)
+        self.__sql_update__ = "UPDATE feeds SET Active = 0 WHERE URL = \"{0}\" AND Active = 1".format(URL)
         self.cursor.execute(self.__sql_update__)
         self.db.commit()
     
@@ -69,13 +69,24 @@ class FeedDatabase():
         all_feeds = self.cursor.execute("SELECT * from feeds")
         return all_feeds
 
-    def del_feed(self, value, exp):
-        sql_del = "DELETE FROM {0} WHERE {1} = {2}".format(self.table, value, exp)
+    def del_feedBY(self, column, value):
+        sql_del = "DELETE FROM {0} WHERE {1} = {2}".format(self.table, column, value)
         self.cursor.execute(sql_del)
         self.db.commit()
 
 if __name__ == '__main__':
     v = FeedDatabase()
     v.add_feed("http://hhateyou.com")
-    v.del_feed("URL", '"http://hhateyou.com"')
+#    v.add_feed("http://jrcresearch.net")
+#    v.add_feed("bob.net")
+#    
+#    feeds = ["just.com", "katy.com", "eric.com", "jan.com"]
+    
+#    for url in feeds:
+#        v.add_feed(url)
+        
+    for i in v.all_feeds():
+        print i
+    
+    v.del_feedBY(id, "28")
     
