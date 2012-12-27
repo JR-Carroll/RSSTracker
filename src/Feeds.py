@@ -18,6 +18,14 @@ feed = feedparser.parse(eval(URL))
 
 title = feed['feed']['title']
 link = feed['feed']['link']
+status = feed['status']
+encoding = feed['encoding']
+for i in feed['entries']:
+    print i.keys()
+    break
+print feed['entries'][3]['content']
+print title
+print link
 
 #for i in feed['entries']:
 #    print i
