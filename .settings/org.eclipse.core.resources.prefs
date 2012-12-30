@@ -1,3 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/DBmanager.py=utf-8
-encoding//src/feedparser.py=utf-8
+encoding//src/FeedCommander.py=utf-8
+encoding//src/FeedManager.py=utf-8
+encoding//src/Feeds.py=utf-8
+encoding//src/test.py=utf-8

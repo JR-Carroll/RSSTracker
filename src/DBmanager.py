@@ -56,21 +56,15 @@ class ConnectFeedDB():
         Connects to the database and adds a table as necessary
         """
         
-        global __DB_NAME__
-        global __DB_TABLE__
-        
-        self.__db__ = __DB_NAME__
-        self.db = sq.connect(self.__db__)
+        global DB_NAME__
+        global DB_TABLE__
+
+        self.db = __DB_NAME__
+        self.db = sq.connect(self.db)
         self.table = __DB_TABLE__
         self.cursor = self.db.cursor()
         self.selected_feed = None
         self.pragma_table = self.cursor.execute("PRAGMA TABLE_INFO(feeds)")
-        self.PRAGMA_COLS = ['CID',
-                            'Name',
-                            'Type',
-                            'NotNull',
-                            'Default',
-                            'PrimaryKey?']
         self.pragma_split()
     
     def pragma_split(self):        
@@ -81,7 +75,7 @@ class ConnectFeedDB():
         self.__temp__ = []
         
         for i in self.pragma_table:
-            self.__temp__.append(zip(self.PRAGMA_COLS, i))
+            self.__temp__.append(i)
         
         self.pragma_table = self.__temp__
         
@@ -116,6 +110,8 @@ class ConnectFeedDB():
     def all_feeds(self):
         """Return a generator object that contains all the feed detail"""
         all_feeds = self.cursor.execute("SELECT * from feeds")
+        for col in enumerate(all_feeds):
+            feeds_zipped = zip(self.pragma_table[col][0]) 
         return all_feeds
 
     def del_feedBY(self, column, value):
@@ -129,7 +125,9 @@ class ConnectFeedDB():
         self.db.commit()
         
 if __name__ == '__main__':
+    pass
     v = ConnectFeedDB()
-    v.select_feed('id', '1')
+    v.pragma_split()
     
-    print v.selected_feed.fetchall()
+    for i in v.all_feeds():
+        print i
