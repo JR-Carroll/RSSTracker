@@ -9,6 +9,8 @@ Created on Dec 23, 2012
 '''
 
 import feedparser
+
+# pylint: disable=F0401
 from DBmanager import ConnectFeedDB
 
 URL = ConnectFeedDB()
