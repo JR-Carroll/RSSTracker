@@ -18,14 +18,14 @@ from twisted.internet import reactor
 
 from DBmanager import ConnectFeedDB
 
-feeds = ConnectFeedDB()
-
 class Feeds(Resource):
     def __init__(self):
         Resource.__init__(self)
+        self.connectDB = ConnectFeedDB()
+        self.connectDB.return_all_feeds()#force reload of table information
         self.value = "test"
         self.html = self.create_html()
-        self.feed_gen = [x for x in feeds.return_all_feeds()]
+        self.feed_gen = [x for x in self.connectDB.return_all_feeds()]
         self.feeds = ""
         self.all_feeds()
         
@@ -48,11 +48,13 @@ class Feeds(Resource):
         </table>
         
         Bulk Action: <select name="BulkAction">
-        <option value="delete_feeds">Delete Feed(s)</option>
-        <option value="check_now">Check Now</option>
-        <option value="activate">Activate</option>
-        <option value="deactivate">Deactivate</option>
+        <option value="bulk:None">No Bulk</option>
+        <option value="bulk:delete_feeds">Delete</option>
+        <option value="bulk:check_now">Check Now</option>
+        <option value="bulk:activate">Activate</option>
+        <option value="bulk:deactivate">Deactivate</option>
         </select>
+        <input type="submit" value="Submit" />
         </form>
         </body>
         </html>"""
@@ -61,7 +63,7 @@ class Feeds(Resource):
     
     def all_feeds(self):
         for i in self.feed_gen:
-            self.feeds += "<tr>\n\t<td><input type=\"checkbox\" name=\"index_{0}\" value=\"selected_feed\"/>".format(i['id'])
+            self.feeds += "<tr>\n\t<td><input type=\"checkbox\" name=\"index_{0}\" value=\"FEED{0}:{0}\"/>".format(i['id'])
             v = i.keys()
             keys_ordered = ('id', 'URIType', 'URL', 'Active', 'Added', 'Last_Checked')
 
@@ -71,27 +73,66 @@ class Feeds(Resource):
             self.feeds += "</tr>"
             
     def inject_feeds(self):
-        print "inject ran!"
-        print self.feeds
         self.html = self.html.format(self.feeds)
         return self.html
     
+    def feed_bulk_action(self, args):
+        posted = args
+        all_args = {} 
+        for i in posted:
+            i = i[0].split(":")
+            all_args.update(dict([i]))
+        
+        self.all_feeds_list = []
+        
+        action = all_args['bulk']
+
+        for i in all_args:
+            print i
+            if "FEED" in i:
+                self.all_feeds_list.append(all_args[i])
+        
+        if action == "None":
+            return "You suck - select a bulk action fool!"
+        elif action == "delete_feeds": 
+            self.del_feeds(self.all_feeds_list)
+        elif action == "check_now":
+            print "check feeds now"
+        elif action == "activate":
+            print "activate some feeds"
+        elif action == "deactivate":
+            print "deactivate some feeds"
+        else:
+            return "unrecognized error"
+            
+    def del_feeds(self, all_feeds):
+        for i in all_feeds:
+            self.connectDB.del_feedBY('id', i)
+            
     def render_GET(self, request):
         if request.path == '/feeds':
+            self.__init__()
             return self.inject_feeds()
     
     def render_POST(self, request):
-        return cgi.escape(request.args['the-field'][0])
+        args = request.args.values()
+        print args
+        self.feed_bulk_action(args)
+        return self.render_GET(request)
+
+
+
+
             
-class ServeFeeds(Resource):
-    def render_GET(self, request):
-        if request.path == "/feeds":
-            return Feeds()
-        else:
-            print "and this broke but it really worked"
-        
-    def getChild(self, name, request):
-        return Feeds()
+#class ServeFeeds(Resource):
+#    def render_GET(self, request):
+#        if request.path == "/feeds":
+#            return Feeds()
+#        else:
+#            print "and this broke but it really worked"
+#        
+#    def getChild(self, name, request):
+#        return Feeds()
 
 root = Resource()
 root.putChild('feeds', Feeds())

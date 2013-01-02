@@ -125,9 +125,18 @@ class ConnectFeedDB():
         sql_all = "DELETE FROM {0}".format(self.table)
         self.cursor.execute(sql_all)
         self.db.commit()
+    
+    def update_feeds(self):
+        self.return_all_feeds()
         
 if __name__ == '__main__':
     v = ConnectFeedDB()
+    v.add_feed("RSS", "alj.com")
+    v.add_feed("RSS", "13423fj.com")
+    v.add_feed("RSS", "alkea231.com")
+    v.add_feed("RSS", "ae23.com")
+    v.add_feed("RSS", "a91991j.com")
+    v.add_feed("RSS", "google.com")
     print v.return_all_feeds()
     
     pass
