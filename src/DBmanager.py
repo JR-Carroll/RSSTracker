@@ -16,18 +16,18 @@ __DB_TABLE__ = 'feeds'
 
 
 class CreateFeedDB():
-    def __init__(self):
+    def __init__(self, DBname=__DB_NAME__, DBtable=__DB_TABLE__):
         """
         Connects to the database and adds a table as necessary
         """
-        
-        global __DB_NAME__
-        global __DB_TABLE__
-        
-        self.__db__ = __DB_NAME__
+        self.__db__ = DBname
+        # connect to the database
         self.db = sq.connect(self.__db__)
-        self.table = __DB_TABLE__
+        # this is the feed table - it has all the info we need about feeds!
+        self.table = DBtable
+        # the cursor object - we use this to communicate to the DB
         self.cursor = self.db.cursor()
+        
         self.create_table(self.table)
         
         self.URL = None
@@ -51,17 +51,14 @@ class CreateFeedDB():
         
         
 class ConnectFeedDB():
-    def __init__(self):
+    def __init__(self, DBname=__DB_NAME__, DBtable=__DB_TABLE__):
         """
         Connects to the database and adds a table as necessary
         """
-        
-        global DB_NAME__
-        global DB_TABLE__
 
-        self.db = __DB_NAME__
+        self.db = DBname
         self.db = sq.connect(self.db)
-        self.table = __DB_TABLE__
+        self.table = DBtable
         self.cursor = self.db.cursor()
         self.selected_feed = None
         self.pragma_table = self.cursor.execute("PRAGMA TABLE_INFO(feeds)")
@@ -70,7 +67,7 @@ class ConnectFeedDB():
     
     def pragma_split(self):        
         """
-        Creates a zipped dictionary of the pragma information + column names
+        Creates a list of the pragma information + column names
         """
         
         self.__temp__ = []
@@ -117,7 +114,9 @@ class ConnectFeedDB():
         return self.all_feeds
 
     def del_feedBY(self, column, value):
+        
         sql_del = "DELETE FROM {0} WHERE {1} = {2}".format(self.table, column, value)
+        print sql_del
         self.cursor.execute(sql_del)
         self.db.commit()
 
@@ -126,7 +125,7 @@ class ConnectFeedDB():
         self.cursor.execute(sql_all)
         self.db.commit()
     
-    def update_feeds(self):
+    def check_feed(self):
         self.return_all_feeds()
         
 if __name__ == '__main__':

@@ -17,10 +17,12 @@ from twisted.web.resource import Resource
 from twisted.internet import reactor
 
 from DBmanager import ConnectFeedDB
+from FeedStatus import ModifyFeed
 
 class Feeds(Resource):
     def __init__(self):
         Resource.__init__(self)
+        self.list_of_feeds = []
         self.connectDB = ConnectFeedDB()
         self.connectDB.return_all_feeds()#force reload of table information
         self.value = "test"
@@ -28,6 +30,8 @@ class Feeds(Resource):
         self.feed_gen = [x for x in self.connectDB.return_all_feeds()]
         self.feeds = ""
         self.all_feeds()
+        self.mod_status = ModifyFeed()
+        
         
     def create_html(self):    
         self.html = """
@@ -62,16 +66,16 @@ class Feeds(Resource):
         return self.html
     
     def all_feeds(self):
-        for i in self.feed_gen:
-            self.feeds += "<tr>\n\t<td><input type=\"checkbox\" name=\"index_{0}\" value=\"FEED{0}:{0}\"/>".format(i['id'])
-            v = i.keys()
+        for feed in self.feed_gen:
+            self.feeds += "<tr>\n\t<td><input type=\"checkbox\" name=\"index_{0}\" value=\"FEED{0}:{0}\"/>".format(feed['id'])
             keys_ordered = ('id', 'URIType', 'URL', 'Active', 'Added', 'Last_Checked')
-
+            self.list_of_feeds.append(feed)
+            
             for key in keys_ordered:
-                self.feeds += "<td>" + str(i[key]) + "</td>"
+                self.feeds += "<td>" + str(feed[key]) + "</td>"
             
             self.feeds += "</tr>"
-            
+        
     def inject_feeds(self):
         self.html = self.html.format(self.feeds)
         return self.html
@@ -86,29 +90,30 @@ class Feeds(Resource):
         self.all_feeds_list = []
         
         action = all_args['bulk']
-
+        
+        print action
+        
         for i in all_args:
-            print i
             if "FEED" in i:
                 self.all_feeds_list.append(all_args[i])
         
         if action == "None":
             return "You suck - select a bulk action fool!"
-        elif action == "delete_feeds": 
-            self.del_feeds(self.all_feeds_list)
+            self.mod_status.del_feeds(self.list_of_feeds)
+        elif action == "delete_feeds":
+            self.mod_status.del_feeds(self.all_feeds_list)
         elif action == "check_now":
-            print "check feeds now"
+            # FORCE check new content from URL source.
+            print self.all_feeds_list 
+            print self.list_of_feeds  
+            self.mod_status.check_feeds(self.list_of_feeds, self.all_feeds_list)
         elif action == "activate":
             print "activate some feeds"
         elif action == "deactivate":
             print "deactivate some feeds"
         else:
             return "unrecognized error"
-            
-    def del_feeds(self, all_feeds):
-        for i in all_feeds:
-            self.connectDB.del_feedBY('id', i)
-            
+                    
     def render_GET(self, request):
         if request.path == '/feeds':
             self.__init__()
@@ -116,13 +121,8 @@ class Feeds(Resource):
     
     def render_POST(self, request):
         args = request.args.values()
-        print args
         self.feed_bulk_action(args)
         return self.render_GET(request)
-
-
-
-
             
 #class ServeFeeds(Resource):
 #    def render_GET(self, request):
