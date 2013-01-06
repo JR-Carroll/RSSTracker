@@ -20,14 +20,19 @@ class ModifyFeed():
         
     def del_feeds(self, bulk_feeds):
         for i in bulk_feeds:
-            print "this printed -->", i
             self.connectDB.del_feedBY('id', i)
     
     def check_feeds(self, all_feeds, bulk_feeds):
         for feed in range(0, len(bulk_feeds), 1):
-            print feed
-            self.URLposition[feed] = all_feeds['id']['URL']
-            print "this is it!!!!!!!!!!!!!!!!!!!!!!!!!", self.URLposition
+            value = bulk_feeds[feed]
+            for i in all_feeds:
+                if i['id'] == int(value):
+                    v = i['URL']
+                else:
+                    pass
+            print v
+            return v
+
 #            self.URL = i
 #            self.feed = feedparser.parse(eval(self.URL))
 #            

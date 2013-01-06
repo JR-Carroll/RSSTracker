@@ -91,8 +91,6 @@ class Feeds(Resource):
         
         action = all_args['bulk']
         
-        print action
-        
         for i in all_args:
             if "FEED" in i:
                 self.all_feeds_list.append(all_args[i])
@@ -104,8 +102,6 @@ class Feeds(Resource):
             self.mod_status.del_feeds(self.all_feeds_list)
         elif action == "check_now":
             # FORCE check new content from URL source.
-            print self.all_feeds_list 
-            print self.list_of_feeds  
             self.mod_status.check_feeds(self.list_of_feeds, self.all_feeds_list)
         elif action == "activate":
             print "activate some feeds"
@@ -143,7 +139,7 @@ reactor.listenTCP(8777, factory)
 
 try:
     print "Server Running..."
-    # pylint: disable=W0702
+    # pylint: disable=W0702    
     reactor.run()
 except:
     print "failed with error"
