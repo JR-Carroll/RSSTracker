@@ -92,13 +92,14 @@ class ConnectFeedDB():
         
     def activate_feed(self, URL):
         """Activate feeds"""
-        self.__sql_update__ = "UPDATE feeds SET Active = 1 WHERE URL = \"{0}\" AND Active = 0".format(URL)
+        self.__sql_update__ = "UPDATE feeds SET Active = 1 WHERE id = \"{0}\" AND Active = 0".format(URL)
         self.cursor.execute(self.__sql_update__)
         self.db.commit()
             
-    def deactivate_feed(self, URL):
+    def deactivate_feed(self, id):
         """Deactivate an active feed"""
-        self.__sql_update__ = "UPDATE feeds SET Active = 0 WHERE URL = \"{0}\" AND Active = 1".format(URL)
+        self.__sql_update__ = "UPDATE feeds SET Active = 0 WHERE id = \"{0}\" AND Active = 1".format(id)
+        print self.__sql_update__
         self.cursor.execute(self.__sql_update__)
         self.db.commit()
     

@@ -29,9 +29,7 @@ class Feeds(Resource):
         self.html = self.create_html()
         self.feed_gen = [x for x in self.connectDB.return_all_feeds()]
         self.feeds = ""
-        self.all_feeds()
-        self.mod_status = ModifyFeed()
-        
+        self.html_feeds()        
         
     def create_html(self):    
         self.html = """
@@ -65,7 +63,7 @@ class Feeds(Resource):
 
         return self.html
     
-    def all_feeds(self):
+    def html_feeds(self):
         for feed in self.feed_gen:
             self.feeds += "<tr>\n\t<td><input type=\"checkbox\" name=\"index_{0}\" value=\"FEED{0}:{0}\"/>".format(feed['id'])
             keys_ordered = ('id', 'URIType', 'URL', 'Active', 'Added', 'Last_Checked')
@@ -81,6 +79,7 @@ class Feeds(Resource):
         return self.html
     
     def feed_bulk_action(self, args):
+        """The feed handler - as feed request come in, feeds are adjuted"""
         posted = args
         all_args = {} 
         for i in posted:
@@ -88,27 +87,15 @@ class Feeds(Resource):
             all_args.update(dict([i]))
         
         self.all_feeds_list = []
-        
         action = all_args['bulk']
         
         for i in all_args:
             if "FEED" in i:
                 self.all_feeds_list.append(all_args[i])
         
-        if action == "None":
-            return "You suck - select a bulk action fool!"
-            self.mod_status.del_feeds(self.list_of_feeds)
-        elif action == "delete_feeds":
-            self.mod_status.del_feeds(self.all_feeds_list)
-        elif action == "check_now":
-            # FORCE check new content from URL source.
-            self.mod_status.check_feeds(self.list_of_feeds, self.all_feeds_list)
-        elif action == "activate":
-            print "activate some feeds"
-        elif action == "deactivate":
-            print "deactivate some feeds"
-        else:
-            return "unrecognized error"
+        self.mod_status = ModifyFeed()
+        
+        self.mod_status.mod(self.list_of_feeds, self.all_feeds_list, action)
                     
     def render_GET(self, request):
         if request.path == '/feeds':
@@ -120,16 +107,6 @@ class Feeds(Resource):
         self.feed_bulk_action(args)
         return self.render_GET(request)
             
-#class ServeFeeds(Resource):
-#    def render_GET(self, request):
-#        if request.path == "/feeds":
-#            return Feeds()
-#        else:
-#            print "and this broke but it really worked"
-#        
-#    def getChild(self, name, request):
-#        return Feeds()
-
 root = Resource()
 root.putChild('feeds', Feeds())
 factory = Site(root)
