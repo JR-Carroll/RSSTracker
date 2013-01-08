@@ -70,6 +70,12 @@ class Feeds(Resource):
             self.list_of_feeds.append(feed)
             
             for key in keys_ordered:
+                if key == 'Active':
+                    if feed[key] == 1:
+                        feed[key] = 'Active'
+                    elif feed[key] == 0:
+                        feed[key] = 'Deactive'
+                        
                 self.feeds += "<td>" + str(feed[key]) + "</td>"
             
             self.feeds += "</tr>"
@@ -79,7 +85,7 @@ class Feeds(Resource):
         return self.html
     
     def feed_bulk_action(self, args):
-        """The feed handler - as feed request come in, feeds are adjuted"""
+        """The feed handler - as feed request come in, feeds are adjusted"""
         posted = args
         all_args = {} 
         for i in posted:
@@ -94,7 +100,6 @@ class Feeds(Resource):
                 self.all_feeds_list.append(all_args[i])
         
         self.mod_status = ModifyFeed()
-        
         self.mod_status.mod(self.list_of_feeds, self.all_feeds_list, action)
                     
     def render_GET(self, request):

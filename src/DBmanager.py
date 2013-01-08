@@ -65,7 +65,7 @@ class ConnectFeedDB():
         self.pragma_split()
         self.all_feeds = []
     
-    def pragma_split(self):        
+    def pragma_split(self):
         """
         Creates a list of the pragma information + column names
         """
@@ -117,7 +117,6 @@ class ConnectFeedDB():
     def del_feedBY(self, column, value):
         
         sql_del = "DELETE FROM {0} WHERE {1} = {2}".format(self.table, column, value)
-        print sql_del
         self.cursor.execute(sql_del)
         self.db.commit()
 
@@ -126,9 +125,13 @@ class ConnectFeedDB():
         self.cursor.execute(sql_all)
         self.db.commit()
     
-    def check_feed(self):
-        self.return_all_feeds()
+    def check_feed(self, id):
+        sql_check = "UPDATE feeds SET Last_Checked = \"{0}\" WHERE id = {1}".format(datetime.ctime(datetime.now()), id)
         
+        self.cursor.execute(sql_check)
+        self.db.commit()
+        self.return_all_feeds()
+
 if __name__ == '__main__':
     v = ConnectFeedDB()
     v.add_feed("RSS", "alj.com")
