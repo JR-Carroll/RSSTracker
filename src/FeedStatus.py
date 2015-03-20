@@ -52,6 +52,7 @@ class ModifyFeed():
                     url = i['URL']
                     try:
                         self.connectDB.check_feed(id=value)
+                        
                     except:
                         raise
                 else:
@@ -65,3 +66,22 @@ class ModifyFeed():
         for i in bulk_feeds:
             self.connectDB.deactivate_feed(i)
                    
+
+class FeedInformation():
+    def __init__(self, feedURL):
+        self.name = feedURL
+        self.url = feedURL
+        self.titles = []
+        self.contents = []
+        self.authors = []
+        
+        setattr(self, "__name__", "My object")
+        print dir(feedparser)
+        self.feed_info = feedparser.parse(self.url)
+    
+    def feed_split(self):
+        
+        for i in self.feed_info(): 
+            self.titles.append(self.feed_info['title'])
+            self.contents.append(self.feed_info['content'])
+            self.authors.append(self.feed_info['author'])

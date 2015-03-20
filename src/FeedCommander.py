@@ -17,7 +17,8 @@ from twisted.web.resource import Resource
 from twisted.internet import reactor
 
 from DBmanager import ConnectFeedDB
-from FeedStatus import ModifyFeed
+from FeedStatus import ModifyFeed, FeedInformation
+
 
 class Feeds(Resource):
     def __init__(self):
@@ -30,11 +31,15 @@ class Feeds(Resource):
         self.feed_gen = [x for x in self.connectDB.return_all_feeds()]
         self.feeds = ""
         self.html_feeds()        
+        self.list_of_all_feeds = []
+        self.all_feed_objects()
+
         
     def create_html(self):    
         self.html = """
         <html>
         <body bgcolor="black" text="white">
+        <center>
         <form name="feeds" method=POST> 
         <table border=2 cellpadding=5>
             <tr>
@@ -57,6 +62,7 @@ class Feeds(Resource):
         <option value="bulk:deactivate">Deactivate</option>
         </select>
         <input type="submit" value="Submit" />
+        </center>
         </form>
         </body>
         </html>"""
@@ -101,7 +107,13 @@ class Feeds(Resource):
         
         self.mod_status = ModifyFeed()
         self.mod_status.mod(self.list_of_feeds, self.all_feeds_list, action)
-                    
+
+    def all_feed_objects(self):                    
+        for feed in self.feed_gen:
+            self.list_of_all_feeds.append(FeedInformation(feed))
+        
+        print self.list_of_all_feeds
+        
     def render_GET(self, request):
         if request.path == '/feeds':
             self.__init__()
